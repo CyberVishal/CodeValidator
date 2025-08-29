@@ -1,0 +1,49 @@
+name: Universal Code Runner
+
+on:
+  push:
+    paths:
+      - 'scripts/**'
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install compilers
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential default-jdk
+
+    - name: Run all scripts
+      run: |
+        for file in scripts/*; do
+          echo "------------------------------"
+          echo "Running $file"
+          ext="${file##*.}"
+          case $ext in
+            py)
+              python "$file"
+              ;;
+            c)
+              gcc "$file" -o "${file%.c}" && "./${file%.c}"
+              ;;
+            cpp)
+              g++ "$file" -o "${file%.cpp}" && "./${file%.cpp}"
+              ;;
+            java)
+              javac "$file" && java "${file%.java}"
+              ;;
+            *)
+              echo "Unsupported file type: $file"
+              ;;
+          esac
+        done
