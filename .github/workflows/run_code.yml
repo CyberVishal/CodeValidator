@@ -21,7 +21,7 @@ jobs:
     - name: Install compilers
       run: |
         sudo apt update
-        sudo apt install -y build-essential default-jdk
+        sudo apt install -y build-essential default-jdk g++ gcc
 
     - name: Run all scripts
       run: |
@@ -34,22 +34,27 @@ jobs:
               python "$file"
               ;;
             c)
-              gcc "$file" -o "${file%.c}" && "./${file%.c}"
+              # Remove problematic dots from output name
+              OUTPUT="${file##*/}"
+              OUTPUT="${OUTPUT%.c}"
+              gcc "$file" -o "$OUTPUT" && "./$OUTPUT"
               ;;
             cpp)
-              g++ "$file" -o "${file%.cpp}" && "./${file%.cpp}"
+              OUTPUT="${file##*/}"
+              OUTPUT="${OUTPUT%.cpp}"
+              g++ "$file" -o "$OUTPUT" && "./$OUTPUT"
               ;;
-          java)
-  cd scripts                       # Go into scripts folder
-  FILENAME="${file##*/}"           # Extract filename only
-  CLASSNAME="${FILENAME%.java}"    # Remove .java to get class name
-  javac "$FILENAME"                # Compile
-  java "$CLASSNAME"                # Run class
-  cd ..                            # Go back to root folder
-  ;;
-
+            java)
+              cd scripts
+              FILENAME="${file##*/}"           # Test.java
+              CLASSNAME="${FILENAME%.java}"    # Test
+              javac "$FILENAME"
+              java "$CLASSNAME"
+              cd ..
+              ;;
             *)
               echo "Unsupported file type: $file"
               ;;
           esac
         done
+
