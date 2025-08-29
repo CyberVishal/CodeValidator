@@ -39,16 +39,15 @@ jobs:
             cpp)
               g++ "$file" -o "${file%.cpp}" && "./${file%.cpp}"
               ;;
-            java)
-              # Go inside scripts folder
-              cd scripts
-              # Compile Java file
-              javac "$(basename $file)"
-              # Run Java class (filename without .java)
-              java "${file##*/}"
-              # Go back to root folder
-              cd ..
-              ;;
+          java)
+  cd scripts                       # Go into scripts folder
+  FILENAME="${file##*/}"           # Extract filename only
+  CLASSNAME="${FILENAME%.java}"    # Remove .java to get class name
+  javac "$FILENAME"                # Compile
+  java "$CLASSNAME"                # Run class
+  cd ..                            # Go back to root folder
+  ;;
+
             *)
               echo "Unsupported file type: $file"
               ;;
