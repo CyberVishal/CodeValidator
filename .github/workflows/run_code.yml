@@ -40,7 +40,14 @@ jobs:
               g++ "$file" -o "${file%.cpp}" && "./${file%.cpp}"
               ;;
             java)
-              javac "$file" && java "${file%.java}"
+              # Go inside scripts folder
+              cd scripts
+              # Compile Java file
+              javac "$(basename $file)"
+              # Run Java class (filename without .java)
+              java "${file##*/}"
+              # Go back to root folder
+              cd ..
               ;;
             *)
               echo "Unsupported file type: $file"
